@@ -46,25 +46,26 @@ defence stops them. Every number below comes from two full stored runs and the j
 
 ## Watch it
 
-<table>
-<tr>
-<td align="center" width="33%">
-<a href="https://github.com/Shiva-destroyer/Manthan/releases/download/v1.0.0/pitch.mp4"><img src="docs/media/video-pitch.png" alt="Pitch video: a local model leaks a secret it was told never to share"/></a><br/>
-<b>Pitch</b><br/>One attack, one guard, the headline numbers.
-</td>
-<td align="center" width="33%">
-<a href="https://github.com/Shiva-destroyer/Manthan/releases/download/v1.0.0/demo.mp4"><img src="docs/media/video-demo.png" alt="Demo video: three ways to attack an AI"/></a><br/>
-<b>Demo</b><br/>Three ways to attack an AI, one real run from each lab.
-</td>
-<td align="center" width="33%">
-<a href="https://github.com/Shiva-destroyer/Manthan/releases/download/v1.0.0/explainer.mp4"><img src="docs/media/video-explainer.png" alt="Explainer video: red teaming a local AI"/></a><br/>
-<b>Explainer</b><br/>How I scored the attacks, and what the numbers cannot show.
-</td>
-</tr>
-</table>
+**Pitch.** One attack, one guard, the headline numbers.
 
-Click a picture to watch or download the video. All three are also in the
-[v1.0.0 release](https://github.com/Shiva-destroyer/Manthan/releases/tag/v1.0.0).
+https://github.com/user-attachments/assets/a18f4730-3f2f-47ae-8882-cbf36535418b
+
+<details>
+<summary><b>Two more videos: the demo and the explainer</b></summary>
+
+<br/>
+
+**Demo.** Three ways to attack an AI, one real run from each lab.
+
+https://github.com/user-attachments/assets/fd72c728-bd28-4ddc-928e-a14b790ce28c
+
+**Explainer.** How I scored the attacks, and what the numbers cannot show.
+
+https://github.com/user-attachments/assets/63152a1b-6daa-4281-ae93-6333648c6d80
+
+</details>
+
+All three are also in the [v1.0.0 release](https://github.com/Shiva-destroyer/Manthan/releases/tag/v1.0.0) to download.
 
 ## The three labs
 
