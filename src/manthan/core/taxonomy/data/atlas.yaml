@@ -1,0 +1,73 @@
+# MITRE ATLAS taxonomy registry for Manthan.
+# ATLAS actively renumbers/extends agentic techniques, so this file carries a
+# framework_version stamp; maintainers MUST re-verify against atlas.mitre.org on
+# a version bump. verify-taxonomy matches by id against this map (FR-C7, F11).
+# Primary ids below were web-verified on 2026-10-22 (d3fend.mitre.org):
+#   AML.T0110 = "AI Agent Tool Poisoning"
+#   AML.T0086 = "Exfiltration via AI Agent Tool Invocation"
+#   AML.T0070 = "RAG Poisoning"
+framework: atlas
+framework_version: "ATLAS (verified 2026-10-22 via atlas.mitre.org / d3fend.mitre.org)"
+ids:
+  AML.T0051:
+    name: LLM Prompt Injection
+    url: https://atlas.mitre.org/techniques/AML.T0051
+    notes: Parent technique; see .000 Direct and .001 Indirect.
+  AML.T0051.000:
+    name: LLM Prompt Injection - Direct
+    url: https://atlas.mitre.org/techniques/AML.T0051
+    notes: Attacker crafts the prompt sent directly to the model.
+  AML.T0051.001:
+    name: LLM Prompt Injection - Indirect
+    url: https://atlas.mitre.org/techniques/AML.T0051
+    notes: Payload enters via ingested/retrieved content (RAG, tool output, email).
+  AML.T0053:
+    name: AI Agent Tool Invocation
+    url: https://atlas.mitre.org/techniques/AML.T0053
+    notes: Agent invokes tools; abuse pathway for goal hijack.
+  AML.T0054:
+    name: LLM Jailbreak
+    url: https://atlas.mitre.org/techniques/AML.T0054
+    notes: Bypass of model safety alignment / guardrails.
+  AML.T0057:
+    name: LLM Data Leakage
+    url: https://atlas.mitre.org/techniques/AML.T0057
+    notes: Extraction of sensitive data embedded in context or memory.
+  AML.T0065:
+    name: LLM Prompt Crafting
+    url: https://atlas.mitre.org/techniques/AML.T0065
+    notes: Iterative construction of an effective adversarial prompt.
+  AML.T0066:
+    name: Retrieval Content Crafting
+    url: https://atlas.mitre.org/techniques/AML.T0066
+    notes: Crafting documents to be retrieved and steer a RAG answer.
+  AML.T0068:
+    name: LLM Prompt Obfuscation
+    url: https://atlas.mitre.org/techniques/AML.T0068
+    notes: Encoding/formatting transforms to evade input filters.
+  AML.T0070:
+    name: RAG Poisoning
+    url: https://atlas.mitre.org/techniques/AML.T0070
+    notes: Injecting poison documents into a retrieval corpus/index.
+  AML.T0086:
+    name: Exfiltration via AI Agent Tool Invocation
+    url: https://atlas.mitre.org/techniques/AML.T0086
+    notes: Agent is induced to send sensitive data out via a tool call.
+  AML.T0110:
+    name: AI Agent Tool Poisoning
+    url: https://atlas.mitre.org/techniques/AML.T0110
+    notes: Malicious tool descriptions/metadata that subvert agent behaviour.
+  # --- forward-awareness: newer adjacent ids ATLAS has introduced (F11). ---
+  # Recognized so a maintainer can retag without a schema change; re-verify on bump.
+  AML.T0080:
+    name: AI Agent Context Poisoning
+    url: https://atlas.mitre.org/techniques/AML.T0080
+    notes: Adjacent newer id; verify on framework_version bump.
+  AML.T0085:
+    name: AI Agent Tools
+    url: https://atlas.mitre.org/techniques/AML.T0085
+    notes: Adjacent newer id; verify on framework_version bump.
+  AML.T0099:
+    name: AI Agent Tool Data Poisoning
+    url: https://atlas.mitre.org/techniques/AML.T0099
+    notes: Adjacent newer id; verify on framework_version bump.

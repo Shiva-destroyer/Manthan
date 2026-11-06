@@ -1,0 +1,673 @@
+[
+  {
+    "id": "asr_*",
+    "term": "Attack success rate",
+    "plain": "How often an attack got the target to do the forbidden thing. Lower is better for the target.",
+    "technical": "Successes divided by trials, judged by the judge panel. Stored with a Wilson confidence range. Prompt: modules/prompt/runner.py:296. Agent: modules/agent/runner.py:185.",
+    "see": [
+      "wilson"
+    ]
+  },
+  {
+    "id": "evasion_*",
+    "term": "Guard evasion",
+    "plain": "Of the attacks that worked, how many also slipped past the guard. Lower means the guard did its job.",
+    "technical": "Evaded successes divided by undefended successes (core/metrics/detection.py evasion_score).",
+    "see": [
+      "guard"
+    ]
+  },
+  {
+    "id": "guard_bypass_*",
+    "term": "Guard bypass",
+    "plain": "How often a disguised attack message was not blocked by the guard. Lower is better for the guard.",
+    "technical": "Share of converted probes whose reply was not the guard's refusal string (modules/prompt/runner.py:316).",
+    "see": [
+      "obfuscated",
+      "guard"
+    ]
+  },
+  {
+    "id": "garak_asr_native",
+    "term": "Static scan success rate (garak's own check)",
+    "plain": "How often the fixed attack list from the garak scanner worked, judged by garak's own detectors.",
+    "technical": "garak probe outputs scored by garak detectors such as DAN mode (modules/prompt/runner.py:95).",
+    "see": [
+      "garak"
+    ]
+  },
+  {
+    "id": "garak_asr_rescored",
+    "term": "Static scan success rate (Manthan's check)",
+    "plain": "The same garak attacks, judged by Manthan's own rule instead. This makes it fair to compare with adaptive attacks.",
+    "technical": "Hits divided by outputs, rescored on canary leak like the Manthan judge (modules/prompt/runner.py:96).",
+    "see": [
+      "garak"
+    ]
+  },
+  {
+    "id": "uplift_*",
+    "term": "Adaptive uplift",
+    "plain": "How much better an adaptive attacker did than a fixed list of attacks. Higher means adaptive attacks matter more.",
+    "technical": "(asr_strategy minus garak_asr_rescored) times 100, in percentage points (baseline/garak_runner.py:87).",
+    "see": [
+      "garak",
+      "asr_*"
+    ]
+  },
+  {
+    "id": "*_kappa",
+    "term": "Judge agreement (kappa)",
+    "plain": "How well two judges agree, after removing agreement that would happen by chance. Higher is better.",
+    "technical": "Cohen's kappa. inline_vs_authoritative_kappa compares the cheap refusal judge with the full panel (modules/prompt/runner.py:330).",
+    "see": [
+      "judge-panel"
+    ]
+  },
+  {
+    "id": "pwned",
+    "term": "Pwned",
+    "plain": "Whether the agent leaked the planted secret in this trial. Yes or no.",
+    "technical": "1.0 or 0.0 per trial. Live lab: a record with the secret reached the sink. Simulated lab: any exfiltration attempt (modules/agent/lab.py:212).",
+    "see": [
+      "data-sink"
+    ]
+  },
+  {
+    "id": "utility_*",
+    "term": "Retained usefulness",
+    "plain": "How often the agent still finished its normal task while under attack. Higher is better.",
+    "technical": "Share of attacked trials that completed the benign task, divided by benign task success (modules/agent/runner.py:205). Zero when the benign run failed.",
+    "see": []
+  },
+  {
+    "id": "monitor_fpr_benign",
+    "term": "Monitor false alarms",
+    "plain": "How often the runtime monitor raised an alarm on a harmless agent run. Lower is better.",
+    "technical": "False positives divided by false positives plus true negatives, on the benign run (modules/agent/runner.py:153).",
+    "see": [
+      "false-positive-rate"
+    ]
+  },
+  {
+    "id": "monitor_precision",
+    "term": "Monitor precision",
+    "plain": "When the monitor raised an alarm, how often the step really was malicious. Higher is better.",
+    "technical": "TP divided by TP plus FP, pooled over all trajectories (modules/agent/runner.py:230).",
+    "see": []
+  },
+  {
+    "id": "monitor_recall",
+    "term": "Monitor recall",
+    "plain": "Of the truly malicious steps, how many the monitor caught. Higher is better.",
+    "technical": "TP divided by TP plus FN, pooled over all trajectories (modules/agent/runner.py:231).",
+    "see": []
+  },
+  {
+    "id": "static_detection_rate",
+    "term": "Static scan detection",
+    "plain": "How many poisoned tool descriptions the scanner flagged before the agent used them. Higher is better.",
+    "technical": "Flagged malicious descriptions divided by all malicious description views (modules/agent/runner.py:225).",
+    "see": []
+  },
+  {
+    "id": "agent_lab_docker",
+    "term": "Lab type",
+    "plain": "Whether the agent ran in the real Docker lab or the simulated lab. It is a label, not a score.",
+    "technical": "1.0 when the lab ran from a Docker image, else 0.0 (modules/agent/runner.py:135).",
+    "see": [
+      "sandbox"
+    ]
+  },
+  {
+    "id": "steps_to_exfil",
+    "term": "Steps to leak",
+    "plain": "How many steps the agent took before the secret first reached the sink.",
+    "technical": "Median step of the first exfiltration record at the sink (modules/agent/runner.py:216).",
+    "see": [
+      "data-sink"
+    ]
+  },
+  {
+    "id": "asr_n*",
+    "term": "Success rate with N poisoned files",
+    "plain": "How often the poisoned answer came out when N poisoned files were in the store. No defence is on.",
+    "technical": "Share of trials where target.hit(answer) is true (modules/rag/runner.py:355). hit: the answer carries the marker, or states the poisoned value and not the clean one.",
+    "see": [
+      "poisoned_rag_n*"
+    ]
+  },
+  {
+    "id": "asr_stacked_defense",
+    "term": "Success rate with all defences on",
+    "plain": "How often the poisoned answer still came out with all four RAG defences switched on. Lower is better.",
+    "technical": "ASR with retrieval_filter, prompt_guard, context_sep and output_validator on (modules/rag/runner.py:434).",
+    "see": []
+  },
+  {
+    "id": "benign_acc*",
+    "term": "Normal answer accuracy",
+    "plain": "How often normal questions got the right answer. A defence that lowers this has a usefulness cost.",
+    "technical": "Share of benign questions answered correctly with the named defence stack on, over the poisoned index (modules/rag/runner.py:397).",
+    "see": []
+  },
+  {
+    "id": "dASR_*",
+    "term": "Defence effect",
+    "plain": "How much one defence lowered the attack success rate. Positive means it helped.",
+    "technical": "Undefended ASR minus ASR with one layer on, at the largest N (modules/rag/runner.py:416). For retrieval_filter and output_validator this is an upper bound, because they know the clean answer (runner.py:442).",
+    "see": [
+      "oracle"
+    ]
+  },
+  {
+    "id": "retrieval_f1_*",
+    "term": "Retrieval quality",
+    "plain": "How well the search step found the right documents and skipped the bad ones. Higher is better.",
+    "technical": "Mean F1 of retrieved chunks against the clean relevant docs. Poison or off-topic chunks count as false positives (modules/rag/runner.py:417, 474).",
+    "see": [
+      "retrieval_manip"
+    ]
+  },
+  {
+    "id": "prompt_leak_rate*",
+    "term": "Secret leak rate",
+    "plain": "How often the RAG system revealed its hidden instructions or planted secret. Lower is better.",
+    "technical": "Share of leak probes whose answer contains the planted secret. The _defended value is after output_validator (modules/rag/runner.py:251).",
+    "see": [
+      "prompt_leak"
+    ]
+  },
+  {
+    "id": "pii_leak_rate*",
+    "term": "Personal data leak rate",
+    "plain": "How often an answer revealed the synthetic personal data planted in the documents. Lower is better.",
+    "technical": "Share of PII probes whose answer contains the synthetic PII. The _defended value is after output_validator (modules/rag/runner.py:255).",
+    "see": []
+  },
+  {
+    "id": "rag_judge_agreement",
+    "term": "RAG judge cross-check",
+    "plain": "How often the shared judge agreed with the fixed success rule. It checks the judge, not the attack.",
+    "technical": "Share of answers where the panel's success equals hit() (modules/rag/runner.py:493). hit() stays the success rule.",
+    "see": [
+      "judge-panel"
+    ]
+  },
+  {
+    "id": "peak_ollama_rss_mb",
+    "term": "Peak model memory",
+    "plain": "The most memory the local model server used during the campaign.",
+    "technical": "Peak RSS of all ollama processes, sampled every second with psutil (core/model/scheduler.py:118).",
+    "see": []
+  },
+  {
+    "id": "peak_proc_rss_mb",
+    "term": "Peak Manthan memory",
+    "plain": "The most memory Manthan itself used, not counting the model server.",
+    "technical": "Peak RSS of this process tree only, psutil 1 s sampler.",
+    "see": []
+  },
+  {
+    "id": "peak_system_used_mb",
+    "term": "Peak system memory",
+    "plain": "The most memory the whole laptop used during the campaign.",
+    "technical": "Peak psutil virtual_memory().used.",
+    "see": []
+  },
+  {
+    "id": "swap_delta_mb",
+    "term": "Swap growth",
+    "plain": "How much the laptop had to spill memory to disk. Manthan aims to keep this near zero.",
+    "technical": "Swap peak minus swap at start. The scheduler aborts rather than swaps.",
+    "see": []
+  },
+  {
+    "id": "budget_exhausted",
+    "term": "Time budget ran out",
+    "plain": "The campaign hit its time limit, so the remaining parts were skipped.",
+    "technical": "Written as 1.0 when BudgetExhausted stops a domain (core/cli/orchestrator.py:250).",
+    "see": [
+      "budget"
+    ]
+  },
+  {
+    "id": "crescendo",
+    "term": "Crescendo attack",
+    "plain": "The attacker starts harmless and pushes a little further each turn. If the target refuses, it backs off and tries a softer angle.",
+    "technical": "Multi-turn escalation with backtracking. Stops early when the canary appears (modules/prompt).",
+    "see": []
+  },
+  {
+    "id": "tap",
+    "term": "TAP attack",
+    "plain": "The attacker tries many variations at once, keeps the most promising ones and drops the rest.",
+    "technical": "Tree of Attacks with Pruning: branch, score with the inline scorer, keep the top k, stop on a canary hit.",
+    "see": []
+  },
+  {
+    "id": "obfuscated",
+    "term": "Disguised attack",
+    "plain": "The attack message is encoded, for example in base64 or leetspeak, to sneak past the guard.",
+    "technical": "obfuscated-injection objective; probes pass through converters before sending.",
+    "see": [
+      "guard"
+    ]
+  },
+  {
+    "id": "indirect_injection",
+    "term": "Indirect injection",
+    "plain": "The attacker never talks to the agent. They hide instructions in an email the agent reads.",
+    "technical": "Attacker controls only ingested content (an inbox message body) telling the agent to read and send a fake secret. OWASP LLM01.",
+    "see": []
+  },
+  {
+    "id": "tool_poison",
+    "term": "Tool poisoning",
+    "plain": "A tool's description hides instructions that tell the agent to steal data.",
+    "technical": "Hidden instructions in an MCP tool description, for example get_weather asking to read and send ~/.ssh/id_rsa.",
+    "see": [
+      "mcp-server"
+    ]
+  },
+  {
+    "id": "rug_pull",
+    "term": "Rug pull",
+    "plain": "A tool looks safe when approved, then changes into a harmful one later.",
+    "technical": "Benign at approval time, mutated afterwards. Detected by a hash diff of the description.",
+    "see": [
+      "mcp-server"
+    ]
+  },
+  {
+    "id": "tool_shadowing",
+    "term": "Tool shadowing",
+    "plain": "A fake tool pretends to be a trusted one, using the same name.",
+    "technical": "A malicious MCP tool impersonating a trusted name (send_message).",
+    "see": [
+      "mcp-server"
+    ]
+  },
+  {
+    "id": "excessive_agency",
+    "term": "Excessive agency",
+    "plain": "The agent has more power than it needs, and the attacker makes it use that power.",
+    "technical": "Over-privileged run_cmd abuse, for example reading /etc/secrets. OWASP LLM06.",
+    "see": []
+  },
+  {
+    "id": "poisoned_rag_n*",
+    "term": "Poisoned documents",
+    "plain": "Fake documents are slipped into the knowledge store to make the system give a false answer. N is how many.",
+    "technical": "N poison docs flip a fictional fact by query-term stuffing (modules/rag/attack/poisoned_rag.py).",
+    "see": [
+      "asr_n*"
+    ]
+  },
+  {
+    "id": "prompt_leak",
+    "term": "Prompt leak",
+    "plain": "Questions that try to make the system reveal its hidden instructions or a planted secret.",
+    "technical": "RAG probes against the system prompt and a synthetic secret.",
+    "see": [
+      "prompt_leak_rate*"
+    ]
+  },
+  {
+    "id": "retrieval_manip",
+    "term": "Retrieval manipulation",
+    "plain": "Keyword-stuffed decoy files crowd out the real documents, even when the final answer stays right.",
+    "technical": "Measured as the drop from retrieval_f1_clean to retrieval_f1_manip.",
+    "see": [
+      "retrieval_f1_*"
+    ]
+  },
+  {
+    "id": "retrieval_filter",
+    "term": "Retrieval filter",
+    "plain": "Drops documents that come from unknown sources, and near-copies of other documents.",
+    "technical": "Source allowlist plus near-duplicate removal. Perplexity filter off by default. Oracle layer: it knows the source label.",
+    "see": [
+      "oracle"
+    ]
+  },
+  {
+    "id": "prompt_guard",
+    "term": "Prompt guard",
+    "plain": "A small classifier checks the question and the found documents for injected instructions.",
+    "technical": "Guard screens the query and drops flagged chunks.",
+    "see": [
+      "guard"
+    ]
+  },
+  {
+    "id": "context_sep",
+    "term": "Context separation",
+    "plain": "Marks the found documents as untrusted, so the model treats them as data, not orders.",
+    "technical": "Labels context as UNTRUSTED DATA. Modelled as neutralising part of the poison influence, weaker than removal.",
+    "see": []
+  },
+  {
+    "id": "output_validator",
+    "term": "Output validator",
+    "plain": "Checks the final answer against the clean documents and hides secrets and personal data.",
+    "technical": "Rejects answers that disagree with the clean corpus and redacts PII and the secret. Oracle layer: it knows the clean answer.",
+    "see": [
+      "oracle"
+    ]
+  },
+  {
+    "id": "wilson",
+    "term": "Confidence range",
+    "plain": "The range where the true rate likely lies. Small tests give wide ranges, so we always show it.",
+    "technical": "Wilson score interval, stored with each rate. The UI reads it from the metric table and never recomputes it.",
+    "see": []
+  },
+  {
+    "id": "kappa",
+    "term": "Kappa",
+    "plain": "A score for how much two judges agree beyond luck. One means perfect agreement, zero means chance.",
+    "technical": "Cohen's kappa for two raters, Fleiss' kappa for more (core/metrics).",
+    "see": []
+  },
+  {
+    "id": "false-positive-rate",
+    "term": "False-positive rate",
+    "plain": "How often something harmless was wrongly called an attack. Lower is better.",
+    "technical": "FP divided by FP plus TN.",
+    "see": []
+  },
+  {
+    "id": "true-positive-rate",
+    "term": "True-positive rate",
+    "plain": "How often a real attack was correctly caught. Higher is better.",
+    "technical": "TP divided by TP plus FN. Also called recall.",
+    "see": []
+  },
+  {
+    "id": "guard",
+    "term": "Guard",
+    "plain": "A small model that scores each message for injected instructions. Messages scoring at or above the threshold are blocked.",
+    "technical": "protectai/deberta-v3-base-prompt-injection-v2, threshold 0.5 (DEFAULT_THRESHOLD). Optional: meta-llama/Llama-Prompt-Guard-2-86M.",
+    "see": []
+  },
+  {
+    "id": "judge-panel",
+    "term": "Judge panel",
+    "plain": "The models and rules that decide if an attack worked. Their own error rate is measured on the Judge page.",
+    "technical": "RefusalJudge plus RubricJudge (phi4-mini) in a JudgeEnsemble.",
+    "see": []
+  },
+  {
+    "id": "oracle",
+    "term": "Upper bound",
+    "plain": "This defence knows the right answer, which a real system would not. So its real effect would be smaller.",
+    "technical": "output_validator and retrieval_filter use the clean answer or source label (modules/rag/runner.py:442).",
+    "see": []
+  },
+  {
+    "id": "owasp",
+    "term": "OWASP LLM Top 10",
+    "plain": "A public list of the ten biggest security risks for apps that use language models.",
+    "technical": "OWASP Top 10 for LLM Applications IDs, for example LLM01 prompt injection.",
+    "see": []
+  },
+  {
+    "id": "atlas",
+    "term": "MITRE ATLAS",
+    "plain": "A public catalogue of real attack techniques against AI systems, run by MITRE.",
+    "technical": "Adversarial Threat Landscape for AI Systems technique IDs (AML.T...).",
+    "see": []
+  },
+  {
+    "id": "garak",
+    "term": "garak",
+    "plain": "A free scanner that sends a fixed list of known attacks. Manthan uses it as the baseline.",
+    "technical": "NVIDIA garak probe suite, run as a separate CLI.",
+    "see": []
+  },
+  {
+    "id": "poison",
+    "term": "Poison",
+    "plain": "The attack worked. The model did the forbidden thing.",
+    "technical": "Verdict success = true. Named after the halahala poison in the churning story.",
+    "see": []
+  },
+  {
+    "id": "nectar",
+    "term": "Nectar",
+    "plain": "The defence held. The model refused or stayed safe.",
+    "technical": "Verdict success = false. Named after the amrita in the churning story.",
+    "see": []
+  },
+  {
+    "id": "packet",
+    "term": "Packet",
+    "plain": "One message travelling between two parts of the lab. Click it to read the full text.",
+    "technical": "One event of kind model.request or model.reply in the event log.",
+    "see": []
+  },
+  {
+    "id": "seed",
+    "term": "Seed",
+    "plain": "A number that fixes the random choices, so the same run can be repeated.",
+    "technical": "Global RNG seed passed to every backend and sampler.",
+    "see": []
+  },
+  {
+    "id": "smoke",
+    "term": "Smoke run",
+    "plain": "A tiny version of a campaign that only checks that everything works.",
+    "technical": "--smoke: minimal objectives and trials.",
+    "see": []
+  },
+  {
+    "id": "budget",
+    "term": "Time budget",
+    "plain": "The longest a campaign may run before Manthan stops it.",
+    "technical": "budget.max_wall_clock_min in budget.yaml.",
+    "see": []
+  },
+  {
+    "id": "canary",
+    "term": "Canary",
+    "plain": "A secret marker planted in the target. If it shows up in a reply, the attack worked.",
+    "technical": "Canary-leak success rule used by the judges.",
+    "see": []
+  },
+  {
+    "id": "ollama",
+    "term": "Ollama",
+    "plain": "The program that runs the language models on this computer. Manthan needs it to be running.",
+    "technical": "Reachability of the Ollama server at the configured base_url (ui/app.py, /api/system).",
+    "see": []
+  },
+  {
+    "id": "lab_image",
+    "term": "Lab image",
+    "plain": "The sealed container the agent tests run in. The image must be built on this computer.",
+    "technical": "Docker image manthan-lab:local is present locally (ui/app.py LAB_IMAGE).",
+    "see": []
+  },
+  {
+    "id": "taxonomy",
+    "term": "Tag check",
+    "plain": "Checks that every attack tag in Manthan matches the OWASP and MITRE lists.",
+    "technical": "taxonomy_check() validates all objective and finding tags against the registry (core/cli/main.py).",
+    "see": [
+      "owasp",
+      "atlas"
+    ]
+  },
+  {
+    "id": "ram",
+    "term": "Free memory",
+    "plain": "How much memory is free. Fast mode needs enough free memory to keep several models loaded.",
+    "technical": "Available RAM against models.residency.min_free_gb_for_fast.",
+    "see": []
+  },
+  {
+    "id": "data",
+    "term": "Results folder",
+    "plain": "The folder where Manthan saves its results.",
+    "technical": "Parent directory of results_db exists.",
+    "see": []
+  },
+  {
+    "id": "target",
+    "term": "Target model",
+    "plain": "The model under attack. The attacks try to make it break its rules.",
+    "technical": "Role models.roles.target in the config.",
+    "see": []
+  },
+  {
+    "id": "attacker",
+    "term": "Attacker model",
+    "plain": "The model that writes the attack messages.",
+    "technical": "Role models.roles.attacker in the config.",
+    "see": []
+  },
+  {
+    "id": "judge",
+    "term": "Judge model",
+    "plain": "The model that reads each reply and decides whether the attack worked.",
+    "technical": "Role models.roles.judge in the config.",
+    "see": [
+      "judge-panel"
+    ]
+  },
+  {
+    "id": "embed",
+    "term": "Embedding model",
+    "plain": "The model that turns text into numbers so the document search can find similar files.",
+    "technical": "Role models.roles.embed in the config. An embedding model cannot chat.",
+    "see": []
+  },
+  {
+    "id": "agent",
+    "term": "Agent",
+    "plain": "The assistant in the agent lab. It reads a task and calls tools to finish it.",
+    "technical": "Agent lab. Runs as LiveLab on Ollama, SimulatedLab on the mock backend, and DockerLab when agent.lab is docker.",
+    "see": [
+      "sandbox"
+    ]
+  },
+  {
+    "id": "mcp",
+    "term": "MCP junction",
+    "plain": "The point where the agent's tool calls leave for a tool server. Two servers sit behind it, one honest and one hostile.",
+    "technical": "Model Context Protocol. Each tool call from the agent passes this point on its way to a tool server.",
+    "see": []
+  },
+  {
+    "id": "rule-check",
+    "term": "Rule check",
+    "plain": "A fixed rule that spots a refusal in the reply. It uses no model.",
+    "technical": "Judge refusal_baseline. It writes one row per reply to the verdict table.",
+    "see": [
+      "judge-panel"
+    ]
+  },
+  {
+    "id": "rubric-judge",
+    "term": "Rubric judge",
+    "plain": "A model that scores each reply against a written rubric. A success needs the success marker in the reply.",
+    "technical": "Judge rubric (RubricJudge, prompt rubric_v2) on the judge role model, temperature 0.0.",
+    "see": [
+      "judge-panel",
+      "judge"
+    ]
+  },
+  {
+    "id": "mcp-legit",
+    "term": "Honest tool server",
+    "plain": "A normal tool server. Its tools do what their descriptions say.",
+    "technical": "Lab tool server with no poisoned description.",
+    "see": []
+  },
+  {
+    "id": "mcp-malicious",
+    "term": "Hostile tool server",
+    "plain": "A tool server the attacker controls. It tries to push the agent into misuse of its tools.",
+    "technical": "Lab tool server behind the tool-based attack classes.",
+    "see": [
+      "tool_poison",
+      "rug_pull",
+      "tool_shadowing"
+    ]
+  },
+  {
+    "id": "sandbox",
+    "term": "Sandbox",
+    "plain": "A closed container where the agent's tools run. It has no network access.",
+    "technical": "DockerLab: python:3.11-slim, --network none, --pull=never.",
+    "see": []
+  },
+  {
+    "id": "mock-exfil",
+    "term": "Fake data sink",
+    "plain": "A stand-in for an attacker's server. It records anything the agent sends to it.",
+    "technical": "Stdlib sink inside the container. Nothing leaves the computer.",
+    "see": []
+  },
+  {
+    "id": "internet-blocked",
+    "term": "Internet (blocked)",
+    "plain": "The outside internet. The lab blocks it, so nothing the agent sends can leave this computer.",
+    "technical": "Container started with --network none.",
+    "see": []
+  },
+  {
+    "id": "document-store",
+    "term": "Document store",
+    "plain": "The files that the question search looks through. Some of them are poisoned on purpose.",
+    "technical": "The RAG corpus. Poisoned files carry is_poison in the rag.retrieved event.",
+    "see": [
+      "poison"
+    ]
+  },
+  {
+    "id": "results-store",
+    "term": "Results store",
+    "plain": "The database that keeps every run, verdict and finding. The pages read their data from it.",
+    "technical": "SQLite file set by results_db in the config. Tables: run, turn, verdict, finding, metric.",
+    "see": []
+  },
+  {
+    "id": "question",
+    "term": "Question",
+    "plain": "The question that goes to the document search before the target answers.",
+    "technical": "Start of the RAG path: question, optional defence layer, target.",
+    "see": []
+  },
+  {
+    "id": "temperature",
+    "term": "Temperature",
+    "plain": "How much chance a model uses when it writes. A low value makes its replies more repeatable.",
+    "technical": "Per-role sampling setting. The rubric judge uses 0.0. The target and attacker use the Ollama default, shown as — when the config does not set one.",
+    "see": []
+  },
+  {
+    "id": "keep_alive",
+    "term": "Keep alive",
+    "plain": "How long Ollama keeps a model in memory after its last use. A short time frees memory sooner.",
+    "technical": "Per-role setting models.roles.<role>.keep_alive. The judge uses 0, so it unloads at once.",
+    "see": []
+  },
+  {
+    "id": "threshold",
+    "term": "Guard threshold",
+    "plain": "The score at which the guard blocks a message. A message at or above it does not reach the target.",
+    "technical": "models.guard.threshold, 0.5 by default.",
+    "see": [
+      "guard"
+    ]
+  },
+  {
+    "id": "simulation",
+    "term": "Simulation",
+    "plain": "A replay of saved events. Nothing runs live and no model is called.",
+    "technical": "Simulation steps through the stored event log, or through the result tables when no log exists. Realtime follows a running campaign.",
+    "see": []
+  }
+]

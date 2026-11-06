@@ -1,0 +1,64 @@
+# Agent lab — egress-restricted docker-compose (PRD §10.1, §10.3, NFR-6).
+# The only network destination the agent can reach is the in-sandbox mock-exfil
+# listener, which LOGS attempted exfiltration and stores nothing real. All other
+# outbound routes are blocked by the internal-only network. Local-only (AT-A4).
+#
+# Build once (needs network): docker compose -f src/manthan/modules/agent/docker-compose.yml build
+# `up` needs no network: every image is local (pull_policy: never). ComposeLab sets
+# MANTHAN_LAB_DIR to the run folder; /lab/current.json names the trial and attack.
+x-lab-image: &lab-image
+  image: manthan-lab:local
+  pull_policy: never
+  user: "${MANTHAN_UID:-1000}:${MANTHAN_GID:-1000}"
+  networks: [sandbox]
+
+services:
+  ollama:
+    image: ollama/ollama:0.40.4
+    pull_policy: never
+    # Host models, read-only (checked 2026-10-26: list + generate work, no writes needed).
+    volumes: ["${OLLAMA_MODELS_DIR:-/var/lib/ollama}:/models:ro"]
+    environment: [OLLAMA_MODELS=/models, OLLAMA_NOPRUNE=1]
+    networks: [sandbox]
+    # CPU-only; no GPU reservation (NFR-3/NFR-4).
+
+  agent:
+    <<: *lab-image
+    pull_policy: never  # `build` would rebuild from PyPI on every `up`; build once by hand
+    build:
+      context: ../../../..
+      dockerfile: src/manthan/modules/agent/Dockerfile
+    command: ["sleep", "infinity"]  # ComposeLab runs each trial with `compose exec`
+    depends_on: [ollama, mcp-legit, mcp-malicious, mock-exfil]
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - MCP_LEGIT_URL=http://mcp-legit:8000/mcp
+      - MCP_MALICIOUS_URL=http://mcp-malicious:8000/mcp
+    volumes: ["../../..:/app/src:ro"]
+
+  mcp-legit:
+    <<: *lab-image
+    command: ["python", "-m", "manthan.modules.agent.mcp_servers.legit_server",
+              "--http", "0.0.0.0:8000", "--state", "/lab/current.json"]
+    environment: [EXFIL_URL=http://mock-exfil:9000/exfil]
+    volumes: ["../../..:/app/src:ro", "${MANTHAN_LAB_DIR:-/tmp/manthan-lab}:/lab:ro"]
+
+  mcp-malicious:
+    <<: *lab-image
+    command: ["python", "-m", "manthan.modules.agent.mcp_servers.malicious_server",
+              "--http", "0.0.0.0:8000", "--state", "/lab/current.json"]
+    environment: [EXFIL_URL=http://mock-exfil:9000/exfil]
+    volumes: ["../../..:/app/src:ro", "${MANTHAN_LAB_DIR:-/tmp/manthan-lab}:/lab:ro"]
+
+  mock-exfil:
+    image: python:3.11-slim
+    pull_policy: never
+    user: "${MANTHAN_UID:-1000}:${MANTHAN_GID:-1000}"
+    command: ["python", "/opt/sink/sink.py", "/lab/exfil.jsonl", "0.0.0.0"]
+    volumes: ["./mock_exfil:/opt/sink:ro", "${MANTHAN_LAB_DIR:-/tmp/manthan-lab}:/lab"]
+    networks: [sandbox]
+
+networks:
+  # internal: true => NO outbound route to the internet; only intra-sandbox.
+  sandbox:
+    internal: true

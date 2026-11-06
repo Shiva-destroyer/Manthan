@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Manthan report — {{ campaign.label or campaign.id }}</title>
+<style>
+  :root {
+    --bg: #0d1117; --panel: #171d26; --ink: #f3efe6; --muted: #9aa4b2;
+    --gold: #e3a84a; --teal: #36b3c2; --line: #263040; --ok: #3fb950; --warn: #d29922;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 24px 20px 64px; }
+  header { display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--line); padding-bottom: 16px; }
+  header .mark { width: 56px; height: 56px; color: var(--ink); flex: 0 0 auto; }
+  h1 { font-family: Georgia, "Times New Roman", serif; font-size: 30px; margin: 0; letter-spacing: .5px; }
+  .tag { font-family: ui-monospace, monospace; font-size: 11px; color: var(--muted); letter-spacing: 2px; }
+  .cost { margin-left: auto; text-align: right; }
+  .cost b { color: var(--gold); font-size: 20px; }
+  .banner { background: #1a2330; border: 1px solid var(--teal); border-radius: 10px; padding: 10px 14px; margin: 18px 0; font-size: 13px; color: var(--muted); }
+  .banner b { color: var(--teal); }
+  h2 { font-size: 18px; border-left: 3px solid var(--gold); padding-left: 10px; margin: 28px 0 12px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+  td.num { font-variant-numeric: tabular-nums; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 12px 0; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  .kpi .v { font-size: 22px; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .kpi .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .svg-wrap { background: #fff; border-radius: 10px; padding: 10px; overflow-x: auto; }
+  .pill { display: inline-block; padding: 1px 7px; border-radius: 20px; font-size: 11px; font-family: ui-monospace, monospace; }
+  .ok { color: var(--ok); } .warn { color: var(--warn); }
+  footer { margin-top: 40px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); padding-top: 14px; }
+  code { font-family: ui-monospace, monospace; background: #0b0f14; padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="mark">{{ logo_svg|safe }}</div>
+    <div>
+      <h1>Manthan</h1>
+      <div class="tag">CHURN · MEASURE · HARDEN</div>
+    </div>
+    <div class="cost">
+      <div class="l tag">RUNTIME COST</div>
+      <b>₹0 / $0</b>
+      <div class="tag">fully local · offline · CPU-only</div>
+    </div>
+  </header>
+
+  <div class="banner">
+    <b>Defensive scope.</b> Every attack ran only against locally-hosted open-weight
+    models and deliberately-vulnerable, self-owned apps in this repo. All secrets,
+    credentials and PII are <b>synthetic fixtures</b>. See <code>SECURITY.md</code>.
+  </div>
+
+  <h2>Campaign</h2>
+  <div class="grid">
+    <div class="kpi"><div class="v">{{ campaign.domain }}</div><div class="l">domain</div></div>
+    <div class="kpi"><div class="v">{{ n_runs }}</div><div class="l">runs</div></div>
+    <div class="kpi"><div class="v">{{ n_findings }}</div><div class="l">findings</div></div>
+    <div class="kpi"><div class="v">{{ "%.0f%%"|format(overall_asr*100) }}</div><div class="l">overall ASR</div></div>
+  </div>
+
+  <h2>Results by domain</h2>
+  <table>
+    <thead><tr><th>Domain</th><th>Metric</th><th>Value</th><th>95% CI</th><th>Method</th></tr></thead>
+    <tbody>
+    {% for m in metrics %}
+      <tr>
+        <td>{{ m.domain }}</td>
+        <td>{{ m.name }}</td>
+        <td class="num">{{ "%.3f"|format(m.value) }}</td>
+        <td class="num">{% if m.ci_low is not none %}[{{ "%.3f"|format(m.ci_low) }}, {{ "%.3f"|format(m.ci_high) }}]{% else %}—{% endif %}</td>
+        <td>{{ m.method or "—" }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  {% if panels.prompt %}
+  <h2>Prompt ASR by strategy</h2>
+  <div class="svg-wrap">{{ panels.prompt.svg|safe }}</div>
+  {% if panels.prompt.kappa is not none %}<div class="tag">inline-vs-authoritative judge agreement (Cohen κ): {{ "%.3f"|format(panels.prompt.kappa) }}</div>{% endif %}
+  {% endif %}
+
+  {% if panels.rag %}
+  <h2>RAG ASR vs poisoned documents</h2>
+  <div class="svg-wrap">{{ panels.rag.svg|safe }}</div>
+  <table>
+    <thead><tr><th>Defense layer</th><th>dASR</th><th>Benign accuracy</th><th>Note</th></tr></thead>
+    <tbody>
+    {% for d in panels.rag.dasr %}
+      <tr>
+        <td>{{ d.layer }}</td>
+        <td class="num">{{ "%.3f"|format(d.dasr) }}</td>
+        <td class="num">{% if d.benign_acc is not none %}{{ "%.3f"|format(d.benign_acc) }}{% else %}—{% endif %}</td>
+        <td>{% if d.oracle %}<span class="pill warn">oracle</span> knows the target or poison; upper bound{% else %}—{% endif %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% if panels.rag.judge_agreement is not none %}<div class="tag">success rule: poisoned answer in the reply; judge ensemble reused as a cross-check, agreement {{ "%.3f"|format(panels.rag.judge_agreement) }}</div>{% endif %}
+  {% endif %}
+
+  {% if panels.agent %}
+  <h2>Agent trajectories</h2>
+  {% if panels.agent.svg %}<div class="svg-wrap">{{ panels.agent.svg|safe }}</div>{% endif %}
+  {% if panels.agent.precision is not none %}<div class="tag">runtime monitor precision {{ "%.3f"|format(panels.agent.precision) }} · recall {{ "%.3f"|format(panels.agent.recall) }}{% if panels.agent.static is not none %} · static detection {{ "%.3f"|format(panels.agent.static) }}{% endif %}</div>{% endif %}
+  {% if panels.agent.utility %}<div class="tag">utility under attack: {% for c, u in panels.agent.utility.items() %}{{ c }} {{ "%.2f"|format(u) }}{% if not loop.last %} · {% endif %}{% endfor %}{% if panels.agent.steps_to_exfil is not none %} · median steps to exfil {{ panels.agent.steps_to_exfil }}{% endif %}</div>{% endif %}
+  <table>
+    <thead><tr><th>Trajectory</th><th>Steps</th><th>Injection step</th><th>Pwned</th><th>Detected</th></tr></thead>
+    <tbody>
+    {% for t in panels.agent.trajectories %}
+      <tr>
+        <td>{{ t.label }}</td>
+        <td class="num">{{ t.steps|length }}</td>
+        <td class="num">{{ t.injection_step if t.injection_step is not none else "—" }}</td>
+        <td>{% if t.pwned %}<span class="pill warn">pwned</span>{% else %}<span class="pill ok">no</span>{% endif %}</td>
+        <td>{{ "yes" if t.detected else "no" }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+
+  {% if judge_calibration %}
+  <h2>Judge calibration (measured, not assumed)</h2>
+  <div class="panel">
+    <table>
+      <thead><tr><th>Judge</th><th>FPR</th><th>TPR</th><th>Accuracy</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for name, cal in judge_calibration.per_judge.items() %}
+        <tr>
+          <td>{{ name }}</td>
+          <td class="num">{{ "%.3f"|format(cal.fpr) }}</td>
+          <td class="num">{{ "%.3f"|format(cal.tpr) }}</td>
+          <td class="num">{{ "%.3f"|format(cal.accuracy) }}</td>
+          <td>{% if cal.fpr_ok %}<span class="pill ok">within target</span>{% else %}<span class="pill warn">over target</span>{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <div class="tag">Fleiss κ (collective): {{ "%.3f"|format(judge_calibration.fleiss_kappa) }} · n = {{ judge_calibration.n_items }}</div>
+    {% if calibration_source %}<div class="tag">{{ calibration_source }}</div>{% endif %}
+  </div>
+  {% endif %}
+
+  <h2>Cross-domain OWASP × ATLAS coverage</h2>
+  <div class="svg-wrap">{{ heatmap_svg|safe }}</div>
+
+  <h2>Findings</h2>
+  <table>
+    <thead><tr><th>Objective</th><th>Strategy</th><th>Success</th><th>Evaded</th><th>OWASP</th><th>ATLAS</th></tr></thead>
+    <tbody>
+    {% for f in findings[:60] %}
+      <tr>
+        <td>{{ f.objective_id }}</td>
+        <td>{{ f.strategy }}</td>
+        <td>{% if f.success %}<span class="pill warn">yes</span>{% else %}<span class="pill ok">no</span>{% endif %}</td>
+        <td>{{ "yes" if f.evaded_defense else "—" }}</td>
+        <td>{{ f.owasp|join(", ") }}</td>
+        <td>{{ f.atlas|join(", ") }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% if findings|length > 60 %}<div class="tag">… {{ findings|length - 60 }} more findings in the store.</div>{% endif %}
+
+  <h2>Provenance</h2>
+  <div class="panel">
+    <table>
+      <tr><td>config hash</td><td><code>{{ provenance.config_hash }}</code></td></tr>
+      <tr><td>seed</td><td class="num">{{ provenance.seed }}</td></tr>
+      <tr><td>backend</td><td>{{ provenance.backend }}</td></tr>
+      <tr><td>model roles</td><td>{{ provenance.models }}</td></tr>
+      {% for name, digest in provenance.model_digests|dictsort %}
+      <tr><td>digest {{ name }}</td><td><code>{{ digest }}</code></td></tr>
+      {% endfor %}
+      {% if provenance.agent_lab %}
+      <tr><td>agent lab</td><td>{{ provenance.agent_lab.kind }} {{ provenance.agent_lab.image }}</td></tr>
+      {% endif %}
+      <tr><td>OWASP framework</td><td>{{ provenance.owasp_version }}</td></tr>
+      <tr><td>ATLAS framework</td><td>{{ provenance.atlas_version }}</td></tr>
+      <tr><td>runtime cost</td><td><b style="color:var(--gold)">₹0 / $0</b> — no paid API calls</td></tr>
+      <tr><td>generated</td><td>{{ provenance.generated_at }}</td></tr>
+    </table>
+  </div>
+
+  <footer>
+    Manthan — churn the model; separate the poison from the nectar.
+    Report generated offline on CPU. OWASP Top 10 for LLM Apps (2025) ·
+    OWASP Top 10 for Agentic Applications (ASI) · MITRE ATLAS.
+  </footer>
+</div>
+</body>
+</html>

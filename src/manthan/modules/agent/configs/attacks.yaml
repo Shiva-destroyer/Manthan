@@ -1,0 +1,11 @@
+# Agent attack toggles (PRD §10.4, FR-A4). Each toggle defaults OFF; enabling one
+# is an explicit operator action. These gate a LIVE DockerLab deployment and may
+# also restrict which classes the measurement benchmark exercises. With all OFF,
+# the SimulatedLab measurement harness runs the full suite in the self-owned,
+# synthetic sandbox (no real system is ever touched — §18).
+attacks:
+  indirect_injection: false   # payload seeded in ingested content (AML.T0051.001)
+  tool_poison: false          # poisoned MCP tool description (AML.T0110)
+  rug_pull: false             # post-approval mutation of a tool description
+  tool_shadowing: false       # malicious tool impersonating a trusted one
+  excessive_agency: false     # over-privileged tool / privilege abuse (LLM06)

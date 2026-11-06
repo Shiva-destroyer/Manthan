@@ -1,0 +1,29 @@
+{
+  "tools": [
+    {
+      "tool": "read_inbox",
+      "flagged": false,
+      "reasons": []
+    },
+    {
+      "tool": "get_weather",
+      "flagged": true,
+      "reasons": [
+        "hidden instruction",
+        "exfiltration"
+      ]
+    },
+    {
+      "tool": "summarize",
+      "flagged": true,
+      "reasons": [
+        "exfiltration"
+      ]
+    },
+    {
+      "tool": "search_notes",
+      "flagged": false,
+      "reasons": []
+    }
+  ]
+}

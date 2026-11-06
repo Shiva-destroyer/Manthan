@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" role="img">
+  <title>Question</title>
+  <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 5 H20 V16 H11 L7 20 V16 H4 Z"/>
+    <path d="M10 8.8 C10 7.6 11 7 12 7 C13.1 7 14 7.7 14 8.8 C14 10.2 12 10.4 12 11.8"/>
+    <circle cx="12" cy="13.6" r="0.4"/>
+  </g>
+</svg>

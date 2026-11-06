@@ -1,0 +1,4 @@
+# Budget guard — tokens/time, NEVER money (PRD §7.6, §19.1).
+max_tokens: 2000000
+max_wall_clock_min: 180
+allow_non_local_backend: false     # opt-in gate (NFR-2); CI keeps this false

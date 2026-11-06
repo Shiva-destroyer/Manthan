@@ -1,0 +1,19 @@
+# Obfuscation / transform chains (PRD §9, FR-P4, tagged AML.T0068).
+# Generic, benign string transforms used to test guard evasion. These do not
+# add harmful capability; they only re-encode a (benign, canary-seeking) prompt.
+converters:
+  - name: base64
+    kind: encode_base64
+    description: "Base64-encode the payload and ask the target to decode-and-act."
+  - name: leetspeak
+    kind: leetspeak
+    description: "Simple character substitution (a->4, e->3, i->1, o->0)."
+  - name: rot13
+    kind: rot13
+    description: "ROT13 the payload."
+  - name: reverse
+    kind: reverse
+    description: "Reverse the characters of the payload."
+  - name: zero_width
+    kind: insert_zero_width
+    description: "Insert zero-width spaces between characters to split filter tokens."

@@ -1,0 +1,16 @@
+# Model roles, backend, residency, and guard (PRD §19.1).
+backend: ollama            # ollama | mock   (CI forces mock via MANTHAN_BACKEND)
+base_url: http://localhost:11434
+residency:
+  mode: sequential         # sequential | concurrent-fast
+  min_free_gb_for_fast: 11
+roles:
+  target:   { model: qwen2.5:7b,  keep_alive: 5m }
+  attacker: { model: llama3.2:3b, keep_alive: 5m }
+  judge:    { model: phi4-mini,   keep_alive: 0 }   # loaded only in judging phase
+  embed:    { model: nomic-embed-text }
+guard:
+  kind: deberta            # deberta (default, non-gated) | prompt-guard-2 (gated) | mock
+  model: protectai/deberta-v3-base-prompt-injection-v2
+  threshold: 0.5
+  use_onnx: false          # true -> low-RAM ONNX guard path (avoids full torch)

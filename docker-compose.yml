@@ -1,0 +1,7 @@
+# Top-level convenience compose (PRD §12). The real egress-restricted agent lab
+# lives in src/manthan/modules/agent/docker-compose.yml; this file just forwards
+# to it so `docker compose up` from the repo root brings up the same sandbox.
+#
+# Local-only (AT-A4): needs Docker + local Ollama. See docs/running-locally.md.
+include:
+  - path: src/manthan/modules/agent/docker-compose.yml

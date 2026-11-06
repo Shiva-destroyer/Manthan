@@ -1,0 +1,173 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "manthan"
+version = "1.0.0"
+description = "Manthan — unified local-first AI red-teaming & defense harness (prompt / agent / RAG)."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.11,<3.12"
+authors = [{ name = "Manthan maintainers" }]
+keywords = [
+    "ai-security", "red-teaming", "prompt-injection", "owasp-llm",
+    "mitre-atlas", "rag-poisoning", "mcp", "local-first", "offline",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Security",
+    "Operating System :: POSIX :: Linux",
+]
+
+# Core install stays lean: everything CI needs, and NOTHING that forces a GPU,
+# a hosted API, or a multi-gigabyte model download. Heavy backends live in the
+# optional extras below and are lazy-imported, so the mock/CI path never needs
+# them. requirements.lock has the exact resolved versions.
+dependencies = [
+    "pydantic>=2.14,<3",
+    "pydantic-settings>=2.4,<3",
+    "numpy>=2.4,<3",
+    "scipy>=1.17,<2",
+    "jinja2>=3.1.6,<4",
+    "typer>=0.27,<1",
+    "rich>=15,<16",
+    "pyyaml>=6,<7",
+    "psutil>=6,<8",
+    "matplotlib>=3.11,<4",
+]
+
+[project.optional-dependencies]
+# --- module extras (operator installs what they run; none needed for CI) ---
+agent = [
+    "langgraph>=1.2.16,<2",
+    "mcp>=2.3,<3",
+    "fastmcp>=4.1.3,<5",
+    "fastapi>=0.159,<1",
+    "uvicorn>=0.54,<1",
+]
+# mcp-scan pins rich==14.2.0 and garak needs transformers<5.20; both clash with the
+# core/guard pins, so run them as separate CLIs (pipx install mcp-scan / garak).
+mcp-scan = ["mcp-scan>=0.4.3,<0.5"]
+rag = [
+    "llama-index>=0.14.25,<0.15",
+    "chromadb>=1.5.9,<2",
+    "faiss-cpu>=1.15.1,<2",
+    "llama-index-vector-stores-chroma>=0.6.0,<0.7",
+    "llama-index-embeddings-ollama>=0.10.0,<0.11",
+    "llama-index-llms-ollama>=0.11.0,<0.12",
+]
+guard = [
+    "transformers>=5.20,<6",
+    "sentence-transformers>=6.2,<7",
+    "sentencepiece>=0.2,<1",
+    "protobuf>=4,<7",
+]
+# Optional low-RAM guard path: ONNX Runtime avoids importing full torch (§7.4).
+guard-onnx = [
+    "optimum[onnxruntime]>=1.20,<2",
+]
+baseline = ["garak>=0.17.1,<0.18"]
+pyrit = ["pyrit>=1.1,<2"]
+ollama = ["ollama>=0.6.3,<0.7"]
+embed = ["nomic>=3,<4"]
+dashboard = ["streamlit>=1.66,<2"]
+ui = ["fastapi>=0.159,<1", "uvicorn>=0.54,<1"]
+dev = [
+    "pytest>=9,<10",
+    "pytest-cov>=5,<8",
+    "pytest-asyncio>=0.23,<2",
+    "pytest-socket>=0.7,<1",
+    "ruff>=0.6",
+    "black>=24",
+    "mypy>=1.11",
+    "pre-commit>=3.7",
+    "types-PyYAML>=6,<7",
+]
+# Convenience: everything local the operator needs to run real campaigns.
+local = [
+    "manthan[agent,rag,guard,ollama,dashboard]",
+]
+
+[project.scripts]
+manthan = "manthan.core.cli.main:app"
+
+[project.urls]
+Homepage = "https://github.com/Shiva-destroyer/Manthan"
+Documentation = "https://github.com/Shiva-destroyer/Manthan/blob/main/README.md"
+
+# --- packaging: src-layout via Hatchling ---------------------------------
+[tool.hatch.build.targets.wheel]
+packages = ["src/manthan"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"src/manthan/core/store/schema.sql" = "manthan/core/store/schema.sql"
+
+# Non-Python data files that ship inside the wheel (taxonomy, templates, etc.).
+[tool.hatch.build]
+include = [
+    "src/manthan/**/*.py",
+    "src/manthan/**/*.yaml",
+    "src/manthan/**/*.yml",
+    "src/manthan/**/*.jsonl",
+    "src/manthan/**/*.sql",
+    "src/manthan/**/*.j2",
+    "src/manthan/**/*.html.j2",
+    "src/manthan/**/*.md",
+    "src/manthan/**/*.txt",
+    "src/manthan/**/*.json",
+    "src/manthan/py.typed",
+    "src/manthan/ui/static/**",
+]
+
+# --- tooling --------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "unit: pure-logic tests, cloud-runnable, no network",
+    "integration: multi-component tests on MockBackend, cloud-runnable, no network",
+    "local_only: needs a live Ollama / HF model on the operator laptop; skipped in CI",
+]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["manthan.core"]
+branch = false
+omit = ["*/cli/*", "*/report/heatmap.py", "*/report/dashboard.py"]
+
+[tool.coverage.report]
+show_missing = true
+precision = 1
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B"]
+# E501: line length handled by black. B008: Typer uses Option() defaults.
+# B905: zip strict= not needed. UP042: (str, Enum) is a deliberate, 3.11-safe
+# idiom with an explicit __str__; StrEnum would change str() semantics.
+ignore = ["E501", "B008", "B905", "UP042"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B011", "B017"]  # B017: pytest-socket raises a broad error on purpose
+"**/__init__.py" = ["F401"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.mypy]
+python_version = "3.11"
+packages = ["manthan"]
+ignore_missing_imports = true
+warn_unused_ignores = false
+no_implicit_optional = true
+check_untyped_defs = false
+exclude = ["tests/", "modules/"]

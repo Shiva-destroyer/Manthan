@@ -1,0 +1,46 @@
+# OWASP taxonomy registry for Manthan.
+# Two frameworks share this file: the OWASP Top 10 for LLM Applications (2025)
+# and the OWASP Top 10 for Agentic Applications (ASI, announced Black Hat EU 2025).
+# verify-taxonomy matches *by id* against this map; an out-of-registry id fails
+# CI rather than silently mis-tagging (FR-C7). Bump framework_version on update.
+framework: owasp
+framework_version: "owasp-llm-2025 + owasp-asi-2025 (verified 2026-10-22)"
+ids:
+  # --- OWASP Top 10 for LLM Applications (2025) ---
+  LLM01:
+    name: Prompt Injection
+    url: https://genai.owasp.org/llmrisk/llm01-prompt-injection/
+    notes: Direct and indirect manipulation of model inputs to alter behaviour.
+  LLM02:
+    name: Sensitive Information Disclosure
+    url: https://genai.owasp.org/llmrisk/llm02-sensitive-information-disclosure/
+    notes: Leakage of secrets, PII, or proprietary data through model outputs.
+  LLM04:
+    name: Data and Model Poisoning
+    url: https://genai.owasp.org/llmrisk/llm04-data-and-model-poisoning/
+    notes: Corrupting training, fine-tuning, or retrieval data to steer outputs.
+  LLM06:
+    name: Excessive Agency
+    url: https://genai.owasp.org/llmrisk/llm06-excessive-agency/
+    notes: Over-privileged tool access / autonomy leading to harmful actions.
+  LLM07:
+    name: System Prompt Leakage
+    url: https://genai.owasp.org/llmrisk/llm07-system-prompt-leakage/
+    notes: Disclosure of hidden system instructions or embedded secrets.
+  LLM08:
+    name: Vector and Embedding Weaknesses
+    url: https://genai.owasp.org/llmrisk/llm08-vector-and-embedding-weaknesses/
+    notes: Retrieval/embedding attacks against RAG stores.
+  # --- OWASP Top 10 for Agentic Applications (ASI, 2025) ---
+  ASI01:
+    name: Agent Goal Hijack
+    url: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications/
+    notes: Redirecting an agent's objective via injected content.
+  ASI02:
+    name: Tool Misuse and Exploitation
+    url: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications/
+    notes: Abuse of agent tools beyond intended scope.
+  ASI06:
+    name: Memory and Context Poisoning
+    url: https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications/
+    notes: Persisting malicious state into an agent's memory/context.

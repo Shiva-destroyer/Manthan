@@ -1,0 +1,7 @@
+# Only what the compose lab image needs (keeps data/ and DBs out of the build context).
+*
+!pyproject.toml
+!README.md
+!LICENSE
+!src/
+**/__pycache__

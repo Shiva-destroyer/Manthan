@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Manthan results (samples gitignored; one tiny sample DB committed if seeded)
+data/results/*
+!data/results/.gitkeep
+!data/results/sample.db
+
+# Reports / artifacts
+*.html
+!src/manthan/core/report/templates/*.html.j2
+!src/manthan/ui/web/index.html
+!src/manthan/ui/static/index.html
+report-*.md
+
+# UI build tooling and local browser-test output
+node_modules/
+.playwright-mcp/
+
+# Local model caches (never vendored)
+*.gguf
+.ollama/
+
+# OS
+.DS_Store
+
+# Local agent and editor state
+.claude/
+.superpowers/
+
+# Media and run output (videos are uploaded to GitHub, not committed)
+*.wav
+*.mp4
+*.steps.json
+
+# SQLite side files and local secrets
+*.db-shm
+*.db-wal
+.env

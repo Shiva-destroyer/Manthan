@@ -1,0 +1,9 @@
+# RAG defense toggles (PRD §11, FR-R4). Each layer independently toggleable and
+# stackable. perplexity_filter is OPTIONAL and defaults OFF — Ollama does not
+# cleanly expose per-token logprobs, so the outlier/dup/allowlist trio is the
+# shipped core retrieval-filter layer (§11, fix-pass 5).
+retrieval_filter: false
+prompt_guard: false
+context_sep: false
+output_validator: false
+perplexity_filter: false
